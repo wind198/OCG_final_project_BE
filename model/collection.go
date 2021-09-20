@@ -17,12 +17,10 @@ type Collection struct {
 
 var clt Collection
 
-func OneCollection(id string) (Collection, error) {
+func OneCollectionCategories(id string) (Collection, error) {
 	if err := config.Database.Where("id = ? ", id).First(&clt).Error; err != nil {
 		fmt.Println(err.Error())
 	}
 	config.Database.Model(&clt).Association("Categories").Find(&clt.Categories)
 	return clt, nil
 }
-
-//colection{id}/categories/products

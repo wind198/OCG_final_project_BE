@@ -18,7 +18,7 @@ func GetOneCollection(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	page, err := model.OneCollection(id)
+	page, err := model.OneCollectionCategories(id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

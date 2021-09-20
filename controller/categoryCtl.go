@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -18,7 +19,9 @@ func GetOneCategoryProducts(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	page, err := model.ProductsBasedCategories(id)
+	limitStr := vars["limit"]
+	limitNum, _ := strconv.Atoi(limitStr)
+	page, err := model.ProductsBasedCategories(id, limitNum)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

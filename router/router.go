@@ -16,17 +16,18 @@ func index(w http.ResponseWriter, r *http.Request) {
 func HandleRequests() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", index)
+	// Return all products
+	// Return one products selected
+	// Return list product with two params which are limit product and category id selected
 	r.HandleFunc("/api/products", controller.GetProducts)
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)
+	r.HandleFunc("/api/products/{limit:[0-9]+}/categories/{id:[0-9]+}", controller.GetOneCategoryProducts)
 
 	r.HandleFunc("/api/pages/collections", controller.GetAllPages)
 	r.HandleFunc("/api/pages/{id:[0-9]+}/collections", controller.GetOnePage)
 
 	//dang tim cach lam
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
-
-	r.HandleFunc("/api/categories/{id:[0-9]+}/products", controller.GetOneCategoryProducts)
-
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":9911", r))
 }
