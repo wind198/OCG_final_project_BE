@@ -25,21 +25,4 @@ func OneCollection(id string) (Collection, error) {
 	return clt, nil
 }
 
-// return collection and its categories and all product
-func OneCollections(id string) (Collection, error) {
-	if err := config.Database.Where("id = ? ", id).First(&clt).Error; err != nil {
-		fmt.Println(err.Error())
-	}
-	err := config.Database.Preload("Categories").Preload("Products").Preload("Image").Preload("ProductVariance").Find(&clt).Error
-	return clt, err
-}
-
-func OneCollectionCategories(id string) (Collection, error) {
-	config.Database.Joins("Categories").Joins("Products").Joins("Images").Joins("ProductVariances").First(&clt, 1)
-	return clt, nil
-}
-
-func OneCollectionTest(id string) (Collection, error) {
-	config.Database.Joins("Product").Find(&clt)
-	return clt
-}
+//colection{id}/categories/products

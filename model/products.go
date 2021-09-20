@@ -16,11 +16,11 @@ type Product struct {
 }
 type ProductVariance struct {
 	gorm.Model
-	ProductID   uint   `json:"product_id"`
-	Color       string `json:"color"`
-	Size        string `json:"size"`
-	Price       string `json:"price"`
-	Inventory   int    `json:"inventory"`
+	ProductID   uint    `json:"product_id"`
+	Color       string  `json:"color"`
+	Size        string  `json:"size"`
+	Price       float32 `json:"price"`
+	Inventory   int     `json:"inventory"`
 	OrderDetail OrderDetail
 }
 
@@ -38,4 +38,11 @@ func OneProduct(id string) (Product, error) {
 	}
 	err := config.Database.Preload("Images").Preload("ProductVariances").Find(&product).Error
 	return product, err
+}
+
+var products []Product
+
+func ProductsBasedCategories(id string) ([]Product, error) {
+	config.Database.Joins("category_products").Where("category_id = ?", id).Find(&product)
+	return products, nil
 }

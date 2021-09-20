@@ -24,7 +24,8 @@ func HandleRequests() {
 
 	//dang tim cach lam
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
-	r.HandleFunc("/api/collections/{id:[0-9]+}/categories/product", controller.GetOneCollection)
+
+	r.HandleFunc("/api/categories/{id:[0-9]+}/products", controller.GetOneCategoryProducts)
 
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":9911", r))

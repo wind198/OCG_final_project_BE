@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetOneCollection(w http.ResponseWriter, r *http.Request) {
+func GetOneCategoryProducts(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -18,7 +18,7 @@ func GetOneCollection(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	page, err := model.OneCollection(id)
+	page, err := model.ProductsBasedCategories(id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
