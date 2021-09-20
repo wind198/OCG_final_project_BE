@@ -1,7 +1,14 @@
 package main
 
-import "log"
+import (
+	"backend/router"
+	"fmt"
+
+	_ "github.com/pdrum/swagger-automation/docs"
+)
 
 func main() {
-	log.Println("hello")
+	fmt.Println("start")
+	// model.Create()
+	router.HandleRequests()
 }
