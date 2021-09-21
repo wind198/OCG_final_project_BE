@@ -1,14 +1,14 @@
 package main
 
 import (
-	"backend/router"
+	"backend/api/router"
 	"fmt"
 
 	_ "github.com/pdrum/swagger-automation/docs"
 )
 
 func main() {
-	fmt.Println("start")
-	// model.Create()
+	fmt.Println("Start")
+	// seed.CreateTable()
 	router.HandleRequests()
 }
