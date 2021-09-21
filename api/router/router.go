@@ -30,6 +30,10 @@ func HandleRequests() {
 
 	// Return a collection and its categories
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
+
+	// Post a order with body
+	r.HandleFunc("/api/orders", controller.CreateOrder).Methods("POST")
+
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":9911", r))
 }
