@@ -71,6 +71,5 @@ func validateOrder(r *http.Request) (Order, error) {
 			return order, errors.New("can not input order_id, make it naked and i will do it for u :D")
 		}
 	}
-
 	return order, nil
 }

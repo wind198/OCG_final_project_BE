@@ -42,12 +42,12 @@ func OneProduct(id string) (Product, error) {
 	return product, err
 }
 
-func ProductsBasedCategories(id string, limitNum int) ([]Product, error) {
+func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]Product, error) {
 	if err := config.Database.Debug().Preload("Images").
 		Preload("ProductVariances").
 		Joins("JOIN category_products on category_products.product_id=products.id").
 		Joins("JOIN categories on category_products.category_id=categories.id").
-		Where("categories.id=?", id).Limit(limitNum).
+		Where("categories.id=?", id).Limit(limitNum).Offset(5).
 		Find(&products).Error; err != nil {
 		log.Fatal(err)
 	}

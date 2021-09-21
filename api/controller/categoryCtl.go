@@ -21,7 +21,10 @@ func GetOneCategoryProducts(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	limitStr := vars["limit"]
 	limitNum, _ := strconv.Atoi(limitStr)
-	page, err := model.ProductsBasedCategories(id, limitNum)
+
+	offsetStr := vars["offset"]
+	offsetNum, _ := strconv.Atoi(offsetStr)
+	page, err := model.ProductsBasedCategories(id, limitNum, offsetNum)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

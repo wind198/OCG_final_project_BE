@@ -21,7 +21,7 @@ func HandleRequests() {
 	// Return list product with two params which are limit product and category id selected
 	r.HandleFunc("/api/products", controller.GetProducts)
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)
-	r.HandleFunc("/api/products/{limit:[0-9]+}/categories/{id:[0-9]+}", controller.GetOneCategoryProducts)
+	r.HandleFunc("/api/products/{limit:[0-9]+}/{offset:[0-9]+}/categories/{id:[0-9]+}", controller.GetOneCategoryProducts)
 
 	// Return all page and its collections
 	// Return a page and its collections
