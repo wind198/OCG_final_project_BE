@@ -31,10 +31,8 @@ type OrderDetail struct {
 }
 
 func Create(r *http.Request) (Order, error) {
-	fmt.Println("Run create order")
 	order, err := validateOrder(r)
 	config.Database.Omit("ID", "FulfilledAt", "ReportSend").Create(&order)
-	// save all fields when performing incluces time...
 	return order, err
 }
 
@@ -70,5 +68,5 @@ func validateOrder(r *http.Request) (Order, error) {
 			return order, errors.New("can not input order_id, make it naked and i will do it for u :D")
 		}
 	}
-	return order, nil
+	return order, err
 }

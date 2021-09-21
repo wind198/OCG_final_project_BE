@@ -2,6 +2,7 @@ package router
 
 import (
 	"backend/api/controller"
+	"backend/api/middleware"
 	"log"
 	"net/http"
 
@@ -15,6 +16,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 func HandleRequests() {
 	r := mux.NewRouter()
+	r.Use(middleware.WithLogging)
 	r.HandleFunc("/", index)
 	// Return all products
 	// Return one products selected
