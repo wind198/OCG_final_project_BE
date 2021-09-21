@@ -38,7 +38,7 @@ func OneProduct(id string) (Product, error) {
 	if err := config.Database.Where("id = ? ", id).First(&product).Error; err != nil {
 		fmt.Println(err.Error())
 	}
-	err := config.Database.Preload("Images").Preload("ProductVariances").Find(&product).Error
+	err := config.Database.Preload("Images").Preload("ProductVariances").Preload("Categories").Find(&product).Error
 	return product, err
 }
 
