@@ -2,7 +2,6 @@ package model
 
 import (
 	"backend/api/config"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -15,12 +14,8 @@ type Collection struct {
 	Categories     []Category `gorm:"foreignKey:CollectionID"`
 }
 
-var clt Collection
-
 func OneCollectionCategories(id string) (Collection, error) {
-	if err := config.Database.Where("id = ? ", id).First(&clt).Error; err != nil {
-		fmt.Println(err.Error())
-	}
-	config.Database.Model(&clt).Association("Categories").Find(&clt.Categories)
-	return clt, nil
+	var clt Collection
+	err := config.Database.Debug().Preload("Categories").Where("ID=?", id).First(&clt).Error
+	return clt, err
 }
