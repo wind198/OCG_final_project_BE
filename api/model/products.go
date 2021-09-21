@@ -27,9 +27,10 @@ type ProductVariance struct {
 }
 
 var product Product
-var products []Product
 
 func AllProducts() ([]Product, error) {
+	var products []Product
+
 	err := config.Database.Preload("Images").Preload("ProductVariances").Find(&products).Error
 	return products, err
 }
@@ -43,11 +44,12 @@ func OneProduct(id string) (Product, error) {
 }
 
 func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]Product, error) {
+	var products []Product
 	if err := config.Database.Debug().Preload("Images").
 		Preload("ProductVariances").
 		Joins("JOIN category_products on category_products.product_id=products.id").
 		Joins("JOIN categories on category_products.category_id=categories.id").
-		Where("categories.id=?", id).Limit(limitNum).Offset(5).
+		Where("category_products.category_id=?", id).Limit(limitNum).Offset(offsNum).
 		Find(&products).Error; err != nil {
 		log.Fatal(err)
 	}

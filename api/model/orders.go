@@ -39,7 +39,6 @@ func Create(r *http.Request) (Order, error) {
 }
 
 func validateOrder(r *http.Request) (Order, error) {
-
 	decoder := json.NewDecoder(r.Body)
 	var order Order
 	err := decoder.Decode(&order)
