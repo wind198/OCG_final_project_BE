@@ -22,10 +22,10 @@ func OnePageCollections(id string) (Page, error) {
 	return rt, nil
 }
 
-var pages []Page
-
 //Preload collection first and then match with pages
 func AllPageCollections() ([]Page, error) {
+	var pages []Page
+
 	err := config.Database.Preload("Collections").Find(&pages).Error // SELECT * FROM pages;
 	return pages, err                                                // SELECT * FROM colelctions WHERE colelctions.pages_id IN (1,2,3,4);
 
