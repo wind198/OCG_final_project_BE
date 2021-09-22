@@ -26,8 +26,6 @@ type ProductVariance struct {
 	OrderDetail OrderDetail
 }
 
-var product Product
-
 func AllProducts() ([]Product, error) {
 	var products []Product
 
@@ -36,6 +34,7 @@ func AllProducts() ([]Product, error) {
 }
 
 func OneProduct(id string) (Product, error) {
+	var product Product
 	if err := config.Database.Where("id = ? ", id).First(&product).Error; err != nil {
 		fmt.Println(err.Error())
 	}
