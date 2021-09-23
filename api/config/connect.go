@@ -31,5 +31,5 @@ func init() {
 		fmt.Println(err.Error())
 		panic("Failed to connect to database")
 	}
-	fmt.Println("Database connection successful.")
+	fmt.Println("Database connection successful.", DbName)
 }

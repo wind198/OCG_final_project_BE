@@ -29,7 +29,7 @@ type OrderDetail struct {
 	gorm.Model
 	OrderID           uint `json:"order_id"`
 	ProductVarianceID uint `json:"product_variance_id"`
-	Quantity          int  `json:"quantity,string"`
+	Quantity          int  `json:"quantity"`
 }
 
 type OrderReport struct {
@@ -57,6 +57,15 @@ func Create(r *http.Request) (Order, error) {
 
 	config.Database.Omit("ID", "FulfilledAt", "ReportSend").Create(&order)
 	return order, err
+}
+
+func GetOneOrder(id string) (Order, error) {
+	var order Order
+	if err := config.Database.Where("id = ? ", id).First(&order).Error; err != nil {
+		fmt.Println(err.Error())
+		return order, errors.New("Sorry, we have an unexpected error handing your payment. Please come back later")
+	}
+	return order, nil
 }
 
 func validateOrder(r *http.Request) (Order, error) {
