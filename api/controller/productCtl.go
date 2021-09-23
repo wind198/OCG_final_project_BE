@@ -59,3 +59,27 @@ func GetOneProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", uj)
 
 }
+
+func TopProduct(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	pdt, err := model.BestSellProducts()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("value", pdt)
+	uj, err := json.Marshal(pdt)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		fmt.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK) // 200
+	fmt.Fprintf(w, "%s\n", uj)
+}

@@ -21,9 +21,15 @@ type ProductVariance struct {
 	ProductID   uint    `json:"product_id"`
 	Color       string  `json:"color"`
 	Size        string  `json:"size"`
-	Price       float32 `json:"price"`
+	Price       float64 `json:"price"`
 	Inventory   int     `json:"inventory"`
 	OrderDetail OrderDetail
+}
+
+type ProductReport struct {
+	ID    uint   `json:"product_id"`
+	Name  string `json:"product_name"`
+	Total uint   `json:"amount sold"`
 }
 
 func AllProducts() ([]Product, error) {
@@ -53,4 +59,44 @@ func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]Product, e
 		log.Fatal(err)
 	}
 	return products, nil
+}
+
+func BestSellProducts() ([]ProductReport, error) {
+	var products []ProductReport
+	rows, err := config.Database.Table("products").
+		Select("products.id,products.name, sum(quantity) total").
+		Joins("JOIN order_details on order_details.product_variance_id=products.id").
+		Group("products.id").Order("total desc").Rows()
+	if err != nil {
+		panic(err)
+	}
+	var total, id uint
+	var name string
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&id, &name, &total)
+		if err != nil {
+			// handle this error
+			panic(err)
+		}
+		products = append(products, ProductReport{
+			ID:    id,
+			Total: total,
+			Name:  name,
+		})
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+	return products, err
+}
+
+func OneProductVariance(id string) (ProductVariance, error) {
+	var productVariance ProductVariance
+	var err error
+	if err = config.Database.Where("id = ? ", id).First(&productVariance).Error; err != nil {
+		fmt.Println(err.Error())
+	}
+	return productVariance, err
 }

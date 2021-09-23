@@ -43,7 +43,6 @@ func WithLogging(h http.Handler) http.Handler {
 			"query":    query,
 			"status":   responseData.status,
 			"duration": duration,
-			"size":     responseData.size,
 		}).Info("\nRequest completed")
 	}
 	return http.HandlerFunc(loggingFn)

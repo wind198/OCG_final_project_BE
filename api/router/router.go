@@ -21,9 +21,11 @@ func HandleRequests() {
 	// Return all products
 	// Return one products selected
 	// Return list product with two params which are limit product and category id selected
+	// Return top 10 best selling products
 	r.HandleFunc("/api/products", controller.GetProducts)
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)
 	r.HandleFunc("/api/products/{limit:[0-9]+}/{offset:[0-9]+}/categories/{id:[0-9]+}", controller.GetOneCategoryProducts)
+	r.HandleFunc("/api/products/top", controller.TopProduct)
 
 	// Return all page and its collections
 	// Return a page and its collections
@@ -34,8 +36,10 @@ func HandleRequests() {
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
 
 	// Post a order with body
+	// Return orde analysis such as total sales, paid order, unpaid order with prams
+	// start time and end time query
 	r.HandleFunc("/api/orders", controller.CreateOrder).Methods("POST")
-
+	r.HandleFunc("/api/orders/analysis", controller.OrderReport)
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":9911", r))
+	log.Fatal(http.ListenAndServe(":9922", r))
 }
