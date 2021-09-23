@@ -72,7 +72,10 @@ func BestSellProducts(st, et string) ([]ProductReport, error) {
 	rows, err := config.Database.Table("products").
 		Select("products.id,products.name, sum(quantity) total").
 		Joins("JOIN order_details on order_details.product_variance_id=products.id").
-		Group("products.id").Order("total desc").Where("order_details.created_at between ? and ?", startTime, endTime).Rows()
+		Joins("JOIN orders on orders.id=order_details.order_id").
+		Group("products.id").Order("total desc").Limit(10).
+		Where("order_details.created_at between ? and ? and orders.fulfilled_at is not null", startTime, endTime).Rows()
+
 	if err != nil {
 		panic(err)
 	}

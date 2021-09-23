@@ -29,7 +29,7 @@ type OrderDetail struct {
 	gorm.Model
 	OrderID           uint `json:"order_id"`
 	ProductVarianceID uint `json:"product_variance_id"`
-	Quantity          int  `json:"quantity,string"`
+	Quantity          int  `json:"quantity"`
 }
 
 type OrderReport struct {
@@ -57,6 +57,49 @@ func Create(r *http.Request) (Order, error) {
 
 	config.Database.Omit("ID", "FulfilledAt", "ReportSend").Create(&order)
 	return order, err
+}
+
+func UpdateAfterPay(id string) (time.Time, error) {
+	order := Order{}
+	time := time.Now().Format("2006-01-02 15:04:05")
+	if config.Database.Debug().Model(&order).
+		Where("orders.id = ? and orders.fulfilled_at is null ", id).
+		Update("fulfilled_at", time).RowsAffected == 0 {
+		return order.FulfilledAt, errors.New("order has been paid before :>")
+	}
+	return order.FulfilledAt, nil
+}
+
+// Return unpaid orders, paid orders, total sales
+func OrderAnalysis(st, et string) (OrderReport, error) {
+	var orp OrderReport
+	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
+	if err != nil {
+		return orp, err
+	}
+	// query with count and sum
+	query := "count(id) as total_orders, sum(case when orders.fulfilled_at is not null then orders.total_price else null end) as total_sales, count(case when orders.fulfilled_at is not null then orders.id else null end) as paid_orders, count(case when orders.fulfilled_at is null then orders.id else null end) as unpaid_orders"
+	config.Database.Debug().Model(&Order{}).
+		Select(query).Where("created_at between ? and ?", startTime, Endtime).Find(&orp)
+	return orp, err
+}
+
+func ValidateAnalysisQuery(st, et string) (time.Time, time.Time, error) {
+
+	// Try to convert string to time format, if err is not nill since its invalid
+	const layout = "2006-01-02 15:04:05"
+	starttime, errS := time.Parse(layout, st)
+	endtime, errE := time.Parse(layout, et)
+	if errS != nil {
+		return starttime, endtime, errors.New("format start time is wrong")
+	}
+	if errE != nil {
+		return starttime, endtime, errors.New("format end time is wrong")
+	}
+	if !starttime.Before(endtime) {
+		return starttime, endtime, errors.New("start end must before end time")
+	}
+	return starttime, endtime, nil
 }
 
 func validateOrder(r *http.Request) (Order, error) {
@@ -111,36 +154,4 @@ func validateOrder(r *http.Request) (Order, error) {
 		return order, errors.New(quantityExceedErrorText)
 	}
 	return order, err
-}
-
-// Return unpaid orders, paid orders, total sales
-func OrderAnalysis(st, et string) (OrderReport, error) {
-	var orp OrderReport
-	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
-	if err != nil {
-		return orp, err
-	}
-	// query with count and sum
-	query := "count(id) as total_orders, sum(case when orders.fulfilled_at is not null then orders.total_price else null end) as total_sales, count(case when orders.fulfilled_at is not null then orders.id else null end) as paid_orders, count(case when orders.fulfilled_at is null then orders.id else null end) as unpaid_orders"
-	config.Database.Debug().Model(&Order{}).
-		Select(query).Where("created_at between ? and ?", startTime, Endtime).Find(&orp)
-	return orp, err
-}
-
-func ValidateAnalysisQuery(st, et string) (time.Time, time.Time, error) {
-
-	// Try to convert string to time format, if err is not nill since its invalid
-	const layout = "2006-01-02 15:04:05"
-	starttime, errS := time.Parse(layout, st)
-	endtime, errE := time.Parse(layout, et)
-	if errS != nil {
-		return starttime, endtime, errors.New("format start time is wrong")
-	}
-	if errE != nil {
-		return starttime, endtime, errors.New("format end time is wrong")
-	}
-	if !starttime.Before(endtime) {
-		return starttime, endtime, errors.New("start end must before end time")
-	}
-	return starttime, endtime, nil
 }

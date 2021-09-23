@@ -32,6 +32,23 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK) // 200
 }
 
+func UpdateOrderPay(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	od, err := model.UpdateAfterPay(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json") //set header type
+	fmt.Fprintf(w, "Successfully update fulfill at  %v\n", od)
+	w.WriteHeader(http.StatusOK) // 200
+}
+
 func OrderReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)

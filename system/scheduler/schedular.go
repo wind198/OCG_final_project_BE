@@ -6,7 +6,6 @@ import (
 	"OCG_final_project_BE/system/rbmq"
 	"OCG_final_project_BE/system/sendgrid"
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -38,20 +37,16 @@ const (
 )
 
 type Scheduler struct {
-	db   *sql.DB
-	cron *cron.Cron
-	// outChan chan<- *mail.EmailContent
+	cron    *cron.Cron
 	rmqChan *rbmq.Rabbit
 	ctx     context.Context
 }
 
-func NewScheduler(ctx context.Context, db *sql.DB, rmqChan *rbmq.Rabbit) *Scheduler {
+func NewScheduler(ctx context.Context, rmqChan *rbmq.Rabbit) *Scheduler {
 	return &Scheduler{
 		ctx:     ctx,
-		db:      db,
 		cron:    cron.New(cron.WithSeconds()), //New returns a new Cron job runner, in the Local time zone.
 		rmqChan: rmqChan,
-		// outChan: ch,
 	}
 }
 

@@ -31,13 +31,13 @@ func CreateSeed() {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	// sql
-	sched := scheduler.NewScheduler(ctx, db, rmqChan)
+	sched := scheduler.NewScheduler(ctx, rmqChan)
 	go func() {
 		sched.Start()
 	}()
 
 	mailer := sendgrid.NewSendgrid(ApiKey)
-	worker := consumer.NewWorker(ctx, wg, db, mailer, rmqChan)
+	consumer := consumer.NewWorker(ctx, wg, db, mailer, rmqChan) //worker
 
 	// Notify causes package signal to relay incoming signals to c.
 	// if send signal interrupt Notify will receive and send to into c channel
@@ -49,11 +49,10 @@ func CreateSeed() {
 		sched.Stop() // stop scheduler at the end
 		cancelFunc()
 	}()
-	/////////////////////////////////////////////////
 
 	wg.Add(1) // add 1 for worker only. don't need for scheduler
 	// run worker (as a receiver of msgExchange channel first)
-	go worker.Start()
+	go consumer.Start()
 
 	// wait for the worker finishes its job
 	wg.Wait()
