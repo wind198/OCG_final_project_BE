@@ -48,6 +48,15 @@ type Duration struct {
 //  Then calculate total price
 //  And we have a new order ting ting! I will wait until my king pay(s) their bill(s)
 
+func GetOneOrder(id string) (Order, error) {
+	var order Order
+	if err := config.Database.Where("id = ? ", id).First(&order).Error; err != nil {
+		fmt.Println(err.Error())
+		return order, errors.New("Sorry, we have an unexpected error handing your payment. Please come back later")
+	}
+	return order, nil
+}
+
 func Create(r *http.Request) (Order, error) {
 	order, err := validateOrder(r)
 	if err != nil {
@@ -85,7 +94,6 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 }
 
 func ValidateAnalysisQuery(st, et string) (time.Time, time.Time, error) {
-
 	// Try to convert string to time format, if err is not nill since its invalid
 	const layout = "2006-01-02 15:04:05"
 	starttime, errS := time.Parse(layout, st)
