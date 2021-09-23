@@ -1,7 +1,7 @@
 package model
 
 import (
-	"backend/api/config"
+	"OCG_final_project_BE/api/config"
 	"fmt"
 
 	"gorm.io/gorm"

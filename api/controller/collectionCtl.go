@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/api/model"
+	"OCG_final_project_BE/api/model"
 	"encoding/json"
 	"fmt"
 	"net/http"

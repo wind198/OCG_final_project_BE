@@ -1,7 +1,7 @@
 package model
 
 import (
-	"backend/api/config"
+	"OCG_final_project_BE/api/config"
 	"fmt"
 	"log"
 
@@ -27,9 +27,9 @@ type ProductVariance struct {
 }
 
 type ProductReport struct {
-	ID    uint   `json:"product_id"`
-	Name  string `json:"product_name"`
-	Total uint   `json:"amount sold"`
+	ID    uint    `json:"product_id"`
+	Name  string  `json:"product_name"`
+	Total float64 `json:"amount sold"`
 }
 
 func AllProducts() ([]Product, error) {
@@ -61,16 +61,23 @@ func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]Product, e
 	return products, nil
 }
 
-func BestSellProducts() ([]ProductReport, error) {
+func BestSellProducts(st, et string) ([]ProductReport, error) {
 	var products []ProductReport
+
+	startTime, endTime, err := ValidateAnalysisQuery(st, et)
+	if err != nil {
+		return products, err
+	}
+
 	rows, err := config.Database.Table("products").
 		Select("products.id,products.name, sum(quantity) total").
 		Joins("JOIN order_details on order_details.product_variance_id=products.id").
-		Group("products.id").Order("total desc").Rows()
+		Group("products.id").Order("total desc").Where("order_details.created_at between ? and ?", startTime, endTime).Rows()
 	if err != nil {
 		panic(err)
 	}
-	var total, id uint
+	var id uint
+	var total float64
 	var name string
 	defer rows.Close()
 	for rows.Next() {

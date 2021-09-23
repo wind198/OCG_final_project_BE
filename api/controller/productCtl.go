@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/api/model"
+	"OCG_final_project_BE/api/model"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -66,8 +66,10 @@ func TopProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-
-	pdt, err := model.BestSellProducts()
+	vars := mux.Vars(r)
+	st := vars["starttime"]
+	et := vars["endtime"]
+	pdt, err := model.BestSellProducts(st, et)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

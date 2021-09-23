@@ -1,8 +1,8 @@
 package router
 
 import (
-	"backend/api/controller"
-	"backend/api/middleware"
+	"OCG_final_project_BE/api/controller"
+	"OCG_final_project_BE/api/middleware"
 	"log"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 func index(w http.ResponseWriter, r *http.Request) {
 
-	http.Redirect(w, r, "/books", http.StatusSeeOther)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 
 }
 func HandleRequests() {
@@ -25,7 +25,7 @@ func HandleRequests() {
 	r.HandleFunc("/api/products", controller.GetProducts)
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)
 	r.HandleFunc("/api/products/{limit:[0-9]+}/{offset:[0-9]+}/categories/{id:[0-9]+}", controller.GetOneCategoryProducts)
-	r.HandleFunc("/api/products/top", controller.TopProduct)
+	r.HandleFunc("/api/products/{starttime}/{endtime}/bestsellings", controller.TopProduct)
 
 	// Return all page and its collections
 	// Return a page and its collections
@@ -39,7 +39,7 @@ func HandleRequests() {
 	// Return orde analysis such as total sales, paid order, unpaid order with prams
 	// start time and end time query
 	r.HandleFunc("/api/orders", controller.CreateOrder).Methods("POST")
-	r.HandleFunc("/api/orders/analysis", controller.OrderReport)
+	r.HandleFunc("/api/orders/{starttime}/{endtime}/analysis", controller.OrderReport)
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":9922", r))
 }

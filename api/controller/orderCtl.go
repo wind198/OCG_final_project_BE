@@ -1,10 +1,12 @@
 package controller
 
 import (
-	"backend/api/model"
+	"OCG_final_project_BE/api/model"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
@@ -31,12 +33,14 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func OrderReport(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != "GET" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-
-	od, err := model.OrderAnalysis(r)
+	vars := mux.Vars(r)
+	st := vars["starttime"]
+	et := vars["endtime"]
+	od, err := model.OrderAnalysis(st, et)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return

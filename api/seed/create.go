@@ -1,8 +1,8 @@
 package seed
 
 import (
-	"backend/api/config"
-	"backend/api/model"
+	"OCG_final_project_BE/api/config"
+	"OCG_final_project_BE/api/model"
 	"fmt"
 )
 
