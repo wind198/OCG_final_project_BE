@@ -29,7 +29,7 @@ type OrderDetail struct {
 	gorm.Model
 	OrderID           uint `json:"order_id"`
 	ProductVarianceID uint `json:"product_variance_id"`
-	Quantity          int  `json:"quantity"`
+	Quantity          int  `json:"quantity,string"`
 }
 
 type OrderReport struct {
