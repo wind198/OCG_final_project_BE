@@ -78,7 +78,6 @@ func (sm *Sendgrid) Send(mailCt *EmailContent) error {
 	}
 	// Host infrom
 	from := mail.NewEmail(mailCt.FromUser.Name, mailCt.FromUser.Email)
-	// htmlContent := mail.NewContent("text/html", mailCt.HtmlContent)
 	to := mail.NewEmail(mailCt.ToUser.Name, mailCt.ToUser.Email)
 	plainTextContent := mail.NewContent("text/plain", mailCt.PlainTextContent)
 	m.SetFrom(from)
@@ -128,6 +127,11 @@ func (sm *Sendgrid) Send(mailCt *EmailContent) error {
 		fmt.Println(response.Body)
 		fmt.Println(response.Headers)
 		fmt.Println("Sending email: ", mailCt)
+		//  Uncomment to remove the file after sent
+		// e := os.Remove(mailCt.Files[1])
+		// if e != nil {
+		// 	log.Fatal(e)
+		// }
 	}
 	return nil
 }

@@ -56,7 +56,7 @@ func OrderReport(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	st := vars["starttime"]
 	et := vars["endtime"]
-	od, err := model.OrderAnalysis(st, et)
+	od, err := model.OrderAnalysisClient(st, et)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return

@@ -2,6 +2,7 @@ package barchart
 
 import (
 	"OCG_final_project_BE/api/model"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -32,10 +33,10 @@ func CreateChartProduct(product []model.ProductReport) (string, error) {
 		BarWidth: 50,
 		Bars:     charts,
 	}
-	path := fmt.Sprintf("./system/barchart/order" + date + ".png")
+	path := fmt.Sprintf("./system/barchart/product" + date + ".png")
 	f, err := os.Create(path)
 	if err != nil {
-		return path, err
+		return path, errors.New("can not create file with path %v" + path)
 	}
 	graph.Render(chart.PNG, f)
 	defer f.Close()
@@ -44,6 +45,7 @@ func CreateChartProduct(product []model.ProductReport) (string, error) {
 
 func CreateChartOrder(order model.OrderReport) (string, error) {
 	date := time.Now().Format("02-01-2006")
+
 	graph := chart.BarChart{
 		Title: "Order Bar Chart :" + date,
 		Background: chart.Style{
@@ -62,7 +64,7 @@ func CreateChartOrder(order model.OrderReport) (string, error) {
 	path := fmt.Sprintf("./system/barchart/order" + date + ".png")
 	f, err := os.Create(path)
 	if err != nil {
-		return path, err
+		return path, errors.New("can not create file with path %v" + path)
 	}
 	graph.Render(chart.PNG, f)
 	defer f.Close()

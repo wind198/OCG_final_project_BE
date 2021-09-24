@@ -20,7 +20,7 @@ func HandleRequests() {
 	r.HandleFunc("/", index)
 	// Return all products
 	// Return one products selected
-	// Return list product with two params which are limit product and category id selected
+	// Return list product with two params which are limit, omit product and category id selected
 	// Return top 10 best selling products
 	r.HandleFunc("/api/products", controller.GetProducts)
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)

@@ -57,6 +57,7 @@ func GetOneOrder(id string) (Order, error) {
 	return order, nil
 }
 
+// Create order
 func Create(r *http.Request) (Order, error) {
 	order, err := validateOrder(r)
 	if err != nil {
@@ -86,8 +87,23 @@ func UpdateOrderAfterSend(tx *gorm.DB, st, et string) error {
 	return err
 }
 
-// Return unpaid orders, paid orders, total sales
+// Return unpaid orders, paid orders, total sales for system
+// cause we have to check report send or not
 func OrderAnalysis(st, et string) (OrderReport, error) {
+	var orp OrderReport
+	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
+	if err != nil {
+		return orp, err
+	}
+	// query with count and sum
+	query := "count(id) as total_orders, sum(case when orders.fulfilled_at is not null then orders.total_price else null end) as total_sales, count(case when orders.fulfilled_at is not null then orders.id else null end) as paid_orders, count(case when orders.fulfilled_at is null then orders.id else null end) as unpaid_orders"
+	config.Database.Debug().Model(&Order{}).
+		Select(query).Where("created_at between ? and ? and report_send is null", startTime, Endtime).Find(&orp)
+	return orp, err
+}
+
+// Order report for client
+func OrderAnalysisClient(st, et string) (OrderReport, error) {
 	var orp OrderReport
 	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
 	if err != nil {

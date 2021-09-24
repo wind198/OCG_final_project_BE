@@ -17,12 +17,12 @@ import (
 
 func main() {
 	fmt.Println("Start")
+	// barchart.Test_CreateChartProduct(&testing.T{})
 	rmqChan := rbmq.NewChannelMQ("rmq")
 	ApiKey := os.Getenv("SENDGRID_KEY")
 	wg := &sync.WaitGroup{}
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
-	// sql
 	sched := scheduler.NewScheduler(ctx, rmqChan)
 	go func() {
 		sched.Start()
@@ -40,9 +40,9 @@ func main() {
 		fmt.Printf("Got %s signal. Exiting...\n", sig)
 		sched.Stop() // stop scheduler at the end
 		cancelFunc()
-		router.HandleRequests()
 	}()
-
+	// start router
+	go router.HandleRequests()
 	wg.Add(1) // add 1 for worker only. don't need for scheduler
 	// run worker (as a receiver of msgExchange channel first)
 	go consumer.Start()
