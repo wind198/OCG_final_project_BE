@@ -1,14 +1,17 @@
 package consumer
 
 import (
+	"OCG_final_project_BE/api/config"
+	"OCG_final_project_BE/api/model"
 	"OCG_final_project_BE/system/sendgrid"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"sync"
 
 	"OCG_final_project_BE/system/rbmq"
+
+	"gorm.io/gorm"
 )
 
 // Worker defines a worker
@@ -17,17 +20,15 @@ type Worker struct {
 	mailer  sendgrid.Mailer
 	rmqChan *rbmq.Rabbit
 	ctx     context.Context
-	db      *sql.DB
 }
 
 // NewWorker creates new worker and gets incoming parammeters
-func NewWorker(ctx context.Context, wg *sync.WaitGroup, db *sql.DB, mailer sendgrid.Mailer, rmqChan *rbmq.Rabbit) *Worker {
+func NewWorker(ctx context.Context, wg *sync.WaitGroup, mailer sendgrid.Mailer, rmqChan *rbmq.Rabbit) *Worker {
 	return &Worker{
 		ctx:     ctx,
 		wg:      wg,
 		mailer:  mailer,
 		rmqChan: rmqChan,
-		db:      db,
 	}
 }
 
@@ -37,13 +38,9 @@ func NewWorker(ctx context.Context, wg *sync.WaitGroup, db *sql.DB, mailer sendg
 //    2. Send email with mailer (Sendgrid client)
 //    3. Update database (thankyou_email_sent) to prevent duplicated emails
 func (w *Worker) Start() {
-	if w.mailer == nil || w.db == nil {
+	if w.mailer == nil {
 		fmt.Println("cannot start worker since mailer is nil")
 		return
-	}
-	sttm, err := w.db.Prepare("UPDATE `order` SET thankyou_email_sent = ? WHERE id =?;")
-	if err != nil {
-		fmt.Println("Can't prepare statement to update thankyou_email_sent")
 	}
 	msgs, err := w.rmqChan.Consume()
 	rbmq.FailOnError(err, "Failed to register a consumer")
@@ -64,10 +61,13 @@ func (w *Worker) Start() {
 				fmt.Println("Can't send msgs in sendgrid")
 				continue
 			}
-			// excute query
-			_, err = sttm.Query(true, mailCt.ID)
+			//  declare prepare statement via Gorm pkg  sendto to handle func
+			// and then send it to handle func
+			tx := config.Database.Session(&gorm.Session{PrepareStmt: true})
+
+			err = model.UpdateOrderAfterSend(tx, mailCt.StartTime, mailCt.EndTime)
 			if err != nil {
-				fmt.Println("Can't query to update thankyou_email_sent to true")
+				fmt.Println("Can't query to update report_send to to true")
 			}
 		case <-w.ctx.Done():
 			fmt.Println("Exiting worker")

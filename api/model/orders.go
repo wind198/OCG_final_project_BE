@@ -33,10 +33,10 @@ type OrderDetail struct {
 }
 
 type OrderReport struct {
-	TotalOrders  uint    `json:"total_orders"`
+	TotalOrders  int     `json:"total_orders"`
 	TotalSales   float64 `json:"total_sales"`
-	PaidOrders   uint    `json:"paid_orders"`
-	UnpaidOrders uint    `json:"unpaid_orders"`
+	PaidOrders   int     `json:"paid_orders"`
+	UnpaidOrders int     `json:"unpaid_orders"`
 }
 
 type Duration struct {
@@ -52,7 +52,7 @@ func GetOneOrder(id string) (Order, error) {
 	var order Order
 	if err := config.Database.Where("id = ? ", id).First(&order).Error; err != nil {
 		fmt.Println(err.Error())
-		return order, errors.New("Sorry, we have an unexpected error handing your payment. Please come back later")
+		return order, errors.New("sorry, we have an unexpected error handing your payment. Please come back later")
 	}
 	return order, nil
 }
@@ -77,6 +77,13 @@ func UpdateAfterPay(id string) (time.Time, error) {
 		return order.FulfilledAt, errors.New("order has been paid before :>")
 	}
 	return order.FulfilledAt, nil
+}
+
+func UpdateOrderAfterSend(tx *gorm.DB, st, et string) error {
+	err := tx.Debug().Model(&Order{}).
+		Where("orders.created_at between ? and ?", st, et).
+		Update("orders.report_send", true).Error
+	return err
 }
 
 // Return unpaid orders, paid orders, total sales

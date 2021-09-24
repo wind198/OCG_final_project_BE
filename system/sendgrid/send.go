@@ -1,9 +1,11 @@
 package sendgrid
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"github.com/sendgrid/sendgrid-go"
@@ -30,13 +32,15 @@ func (eu *EmailUser) String() string {
 
 // EmailContent defines email content info
 type EmailContent struct {
-	ID               int64             `json:"id"`
-	Subject          string            `json:"subject"`
-	FromUser         *EmailUser        `json:"from"`
-	ToUser           *EmailUser        `json:"to"`
-	PlainTextContent string            `json:"plaintext_content"`
-	HtmlContent      string            `json:"html_content"`
-	Attachments      []mail.Attachment `json:"attachments"`
+	ID               int64      `json:"id"`
+	StartTime        string     `json:"start_time"`
+	EndTime          string     `json:"enf_time"`
+	Subject          string     `json:"subject"`
+	FromUser         *EmailUser `json:"from"`
+	ToUser           *EmailUser `json:"to"`
+	PlainTextContent string     `json:"plaintext_content"`
+	HtmlContent      string     `json:"html_content"`
+	Files            []string   `json:"attachments"`
 }
 
 // encoding mail to json
@@ -74,22 +78,48 @@ func (sm *Sendgrid) Send(mailCt *EmailContent) error {
 	}
 	// Host infrom
 	from := mail.NewEmail(mailCt.FromUser.Name, mailCt.FromUser.Email)
-	htmlContent := mail.NewContent("text/html", mailCt.HtmlContent)
+	// htmlContent := mail.NewContent("text/html", mailCt.HtmlContent)
 	to := mail.NewEmail(mailCt.ToUser.Name, mailCt.ToUser.Email)
 	plainTextContent := mail.NewContent("text/plain", mailCt.PlainTextContent)
 	m.SetFrom(from)
-	m.AddContent(plainTextContent, htmlContent)
+	m.AddContent(plainTextContent)
 	// Reciever info
 	personalization := mail.NewPersonalization()
 	personalization.AddTos(to)
 	date := time.Now().Format("02-01-2006")
 	personalization.Subject = "Report - Daily! " + date
 	m.AddPersonalizations(personalization)
-	p1 := &mailCt.Attachments[0]
-	p2 := &mailCt.Attachments[1]
 
-	m.AddAttachment(p1)
-	m.AddAttachment(p2)
+	// Product chart
+	pdPng, err := ioutil.ReadFile(mailCt.Files[0])
+	if err != nil {
+		fmt.Println(err)
+	}
+	encodedPdc := base64.StdEncoding.EncodeToString([]byte(pdPng))
+	prt := &mail.Attachment{
+		Content:     encodedPdc,
+		Type:        "image/png",
+		Filename:    "Product.png",
+		Disposition: "inline",
+		ContentID:   "ProductReport",
+	}
+
+	// Order chart
+	orderchart, err := ioutil.ReadFile(mailCt.Files[1])
+	if err != nil {
+		return err
+	}
+	encodeOdc := base64.StdEncoding.EncodeToString([]byte(orderchart))
+	ort := &mail.Attachment{
+		Content:     encodeOdc,
+		Type:        "image/png",
+		Filename:    "Order.png",
+		Disposition: "inline",
+		ContentID:   "ProductReport",
+	}
+
+	m.AddAttachment(prt)
+	m.AddAttachment(ort)
 	response, err := sm.Client.Send(m)
 	if err != nil {
 		return err

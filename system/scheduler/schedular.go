@@ -6,34 +6,28 @@ import (
 	"OCG_final_project_BE/system/rbmq"
 	"OCG_final_project_BE/system/sendgrid"
 	"context"
-	"encoding/base64"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"time"
-
-	maller "github.com/sendgrid/sendgrid-go/helpers/mail"
 
 	"github.com/robfig/cron/v3"
 )
 
 /*
 Goal:
- - is to scan order table for getting new order to send thank you email
- - run at every minute
- - after send the email -> set thankyou_email_sent to true
+ - Scan order, porduct and create chart for each
+ - run at every 12 AM
+ - after sent email update orders.report_sent
 
-Definition:
- - if created_at < now - 1 minutes && thankyou_email_sent == false -> schedule to send email
 */
 
 const (
-	DefaultReportSubject   = "Report for shop owner from Decorshop"
-	DefaultReportBodyPlain = "Report for shop owner from Decorshop. Here's your reports today:"
-	DefaultReportBodyHtml  = "<strong>Report for shop owner from Decorshop. Here's your reports today:</strong>"
-	DefaultFromName        = "My Decor Shop"
-	DefaultFromEmail       = "duynvwork@gmail.com"
-	DefaultShopOwnerEmail  = "ngoduy9911@gmail.com"
-	DefaultShopOwnerNamme  = "Duynv Decor"
+	DefaultReportSubject  = "Report for shop owner from Decorshop"
+	DefaultReportBodyHtml = "<strong>Report for shop owner from Decorshop. Here's your reports today:</strong>"
+	DefaultFromName       = "My Decor Shop"
+	DefaultFromEmail      = "duynvwork@gmail.com"
+	DefaultShopOwnerEmail = "ngoduy9911@gmail.com"
+	DefaultShopOwnerNamme = "Duynv Decor"
 )
 
 type Scheduler struct {
@@ -51,7 +45,7 @@ func NewScheduler(ctx context.Context, rmqChan *rbmq.Rabbit) *Scheduler {
 }
 
 func (sched *Scheduler) Start() {
-	// runs this function every minute
+	// second/minute/hour/day/month/dayweek
 	sched.cron.AddFunc("0 * * * * *", sched.scheduleJob)
 	sched.cron.Start()
 }
@@ -86,7 +80,7 @@ func (sched *Scheduler) getEmailForSending() ([]*sendgrid.EmailContent, error) {
 	}
 	// fill FromUser
 	// why we can set FromUser here? aws:
-	// I think Sender usualy only  uses a fixed mail or if we want divide the work for other admin mail
+	// if we want to improve it we can
 	for _, emailContent := range resp {
 		emailContent.FromUser = &sendgrid.EmailUser{
 			Name:  DefaultFromName,
@@ -100,59 +94,40 @@ func (sched *Scheduler) getEmailForSending() ([]*sendgrid.EmailContent, error) {
 // scanFromDB get all orders that match the predefined condition (created_at < now - 1 min && thankyou_email_sent == falses)
 func (sched *Scheduler) prepareContent() ([]*sendgrid.EmailContent, error) {
 	var resp []*sendgrid.EmailContent
-	// Where i prepare before query
-	startTime := time.Now().Add(-time.Hour * 20).Format("2006-01-02 15:04:05")
-	fmt.Println("Timeeee ", startTime)
+	startTime := time.Now().Add(-time.Hour * 300).Format("2006-01-02 15:04:05")
 	endTime := time.Now().Format("2006-01-02 15:04:05")
-	// Convert to string
-	st := fmt.Sprintf("%v", startTime)
-	et := fmt.Sprintf("%v", endTime)
 
-	productReport, err := model.BestSellProducts(st, et)
-	Error(err)
-	orderReport, err := model.OrderAnalysis(st, et)
-	Error(err)
-
-	pathOrp, err := barchart.CreateChartOrder(orderReport)
-	Error(err)
-	pathPdr, err := barchart.CreateChartProduct(productReport)
-	Error(err)
-	paths := make([]string, 0)
-	paths = append(paths, pathOrp, pathPdr)
-
-	ats := make([]maller.Attachment, 0)
-	for _, v := range paths {
-		dat, err := ioutil.ReadFile(v)
-		if err != nil {
-			fmt.Println(err)
-		}
-		encoded := base64.StdEncoding.EncodeToString([]byte(dat))
-		at := maller.Attachment{
-			Content:     encoded,
-			Type:        "image/png",
-			Filename:    "chart.png",
-			Disposition: "inline",
-			ContentID:   "ProductReport",
-		}
-		ats = append(ats, at)
+	productReport, err := model.BestSellProducts(startTime, endTime)
+	if err != nil {
+		return resp, errors.New("can can get  best sellings product")
 	}
-	fmt.Println("len", len(ats))
+	orderReport, err := model.OrderAnalysis(startTime, endTime)
+	if err != nil {
+		return resp, errors.New("c an not can not get order analysis")
+	}
 
+	// create chart and return file paths
+	ordChart, err := barchart.CreateChartOrder(orderReport)
+	if err != nil {
+		return resp, errors.New("error create chart order")
+	}
+	pdtChart, err := barchart.CreateChartProduct(productReport)
+	if err != nil {
+		return resp, errors.New("error create chart product")
+	}
+	fs := []string{}
+	fs = append(fs, pdtChart, ordChart)
 	resp = append(resp, &sendgrid.EmailContent{
+		StartTime:        startTime,
+		EndTime:          endTime,
 		Subject:          DefaultReportSubject,
-		PlainTextContent: DefaultReportBodyPlain,
+		PlainTextContent: fmt.Sprintf("Today we got %v order(s) and total sales is %v, you are smart to come up with a marketing plan! ", orderReport.TotalOrders, orderReport.TotalSales),
 		HtmlContent:      DefaultReportBodyHtml,
-		Attachments:      ats,
+		Files:            fs,
 		ToUser: &sendgrid.EmailUser{
 			Name:  DefaultShopOwnerNamme,
 			Email: DefaultShopOwnerEmail,
 		},
 	})
 	return resp, nil
-}
-
-func Error(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }

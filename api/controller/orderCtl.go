@@ -24,7 +24,6 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	uj, err := json.Marshal(od)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		fmt.Println(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json") //set header type

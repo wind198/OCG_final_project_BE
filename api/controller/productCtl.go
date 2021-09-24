@@ -25,7 +25,6 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	uj, err := json.Marshal(pdt)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		fmt.Println(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -51,7 +50,6 @@ func GetOneProduct(w http.ResponseWriter, r *http.Request) {
 	uj, err := json.Marshal(pdt)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		fmt.Println(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -78,7 +76,6 @@ func TopProduct(w http.ResponseWriter, r *http.Request) {
 	uj, err := json.Marshal(pdt)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		fmt.Println(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
