@@ -81,7 +81,7 @@ func OrderManagement(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	st := vars["starttime"]
 	et := vars["endtime"]
-	od, err := model.OrderManagement(st, et)
+	od, odt, err := model.OrderManagements(st, et)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return
@@ -93,7 +93,13 @@ func OrderManagement(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
+	ujt, err := json.Marshal(odt)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		fmt.Println(err)
+	}
+
 	w.Header().Set("Content-Type", "application/json") //set header type
-	fmt.Fprintf(w, "%s\n", uj)
+	fmt.Fprintf(w, "%s\n %s\n", uj, ujt)
 	w.WriteHeader(http.StatusOK) // 200
 }

@@ -23,12 +23,12 @@ type Order struct {
 	ReportSend   bool          `json:"ReportSend"`
 	FulfilledAt  time.Time     `json:"FulfilledAt"`
 	Status       bool          `json:"Status"`
-	OrderDetails []OrderDetail `gorm:"foreignKey:OrderID"`
+	OrderDetails []OrderDetail `gorm:"foreignKey:ID;AssociationForeignKey:OrderID"`
 }
 
 type OrderDetail struct {
 	gorm.Model
-	OrderID           uint `json:"OrderID"`
+	OrderID           uint `gorm:"column:order_id" json:"OrderID"`
 	ProductVarianceID uint `json:"ProductVarianceID"`
 	Quantity          int  `json:"Quantity"`
 }
@@ -38,6 +38,15 @@ type OrderReport struct {
 	TotalSales   float64 `json:"TotalSales"`
 	PaidOrders   int     `json:"PaidOrders"`
 	UnpaidOrders int     `json:"UnpaidOrders"`
+}
+
+type Tabler interface {
+	TableName() string
+}
+
+// TableName overrides the table name used by OrderDetails to `order_details`
+func (OrderDetail) TableName() string {
+	return "order_details"
 }
 
 type OrderDetailManagement struct {
@@ -114,30 +123,18 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 }
 
 // Return return order infors
-func OrderManagement(st, et string) ([]OrderDetailManagement, error) {
-	var orderDetail []OrderDetailManagement
-	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
-	err := config.Database.Debug().Model(&Order{}).
-		Select("orders.id, orders.email, orders.phone, orders.customer_name, orders.address, orders.fulfilled_at, orders.status, products.*, product_variances.*").
-		Joins("inner join order_details on order_details.order_id = orders.id").
-		Joins("inner join product_variances on product_variances.product_id = order_details.product_variance_id").
-		Joins("inner join products on products.id = product_variances.product_id").
-		Where("orders.created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
+func OrderManagements(st, et string) ([]Order, []OrderDetail, error) {
+	var orders []Order
+	var orderDetails []OrderDetail
+	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
 	if err != nil {
-		return orderDetail, errors.New("error query  order management")
+		return orders, orderDetails, err
 	}
-	return orderDetail, nil
-}
-
-func OrderManagements(st, et string) ([]Order, error) {
-	var orderDetail []Order
-	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
-	err := config.Database.Debug().Model(&Order{}).Preload("ProductVariances.Products").
-		Where("orders.created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
-	if err != nil {
-		return orderDetail, errors.New("error query  order management")
-	}
-	return orderDetail, nil
+	config.Database.Where("created_at between ? and ?", startTime, Endtime).
+		Order("orders.id asc").
+		Find(&orders)
+	config.Database.Order("order_details.order_id asc").Find(&orderDetails)
+	return orders, orderDetails, nil
 }
 
 // Order report for client
