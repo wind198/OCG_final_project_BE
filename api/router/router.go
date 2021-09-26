@@ -26,10 +26,14 @@ func HandleRequests() {
 	r.HandleFunc("/api/products/{id:[0-9]+}", controller.GetOneProduct)
 	r.HandleFunc("/api/products/{starttime}/{endtime}/bestsellings", controller.TopProduct)
 
-	// Return all product based on categories.id
+	// Return  products based on categories.id
 	r.Path("/api/categories/{id:[0-9]+}/products").
 		Queries("limit", "{limit}").Queries("offset", "{offset}").
-		HandlerFunc(controller.GetOneCategoryProducts)
+		HandlerFunc(controller.ShowProductBasedCategoryID)
+	// Return products based on collection.id
+	r.Path("/api/collections/{id:[0-9]+}/products").
+		Queries("limit", "{limit}").Queries("offset", "{offset}").
+		HandlerFunc(controller.ShowProductBasedCollectionID)
 
 	// Return all page and its collections
 	// Return a page and its collections
@@ -37,9 +41,7 @@ func HandleRequests() {
 	r.HandleFunc("/api/pages/{id:[0-9]+}/collections", controller.GetOnePage)
 
 	// Return a collection and its categories
-	// Return a collection and its products
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
-	r.HandleFunc("/api/collections/{id:[0-9]+}/products", controller.GetCollectionProduct)
 
 	// Post a order with body
 	// Return orde analysis such as total sales, paid order, unpaid order with prams
@@ -50,5 +52,5 @@ func HandleRequests() {
 	r.HandleFunc("/api/orders/{starttime}/{endtime}/analysis", controller.OrderReport)
 	r.HandleFunc("/api/orders/{starttime}/{endtime}/managements", controller.OrderManagement)
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":9922", r))
+	log.Fatal(http.ListenAndServe(":9944", r))
 }

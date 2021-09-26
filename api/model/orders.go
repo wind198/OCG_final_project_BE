@@ -117,11 +117,23 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 func OrderManagement(st, et string) ([]OrderDetailManagement, error) {
 	var orderDetail []OrderDetailManagement
 	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
-	err := config.Database.Model(&Order{}).
+	err := config.Database.Debug().Model(&Order{}).
 		Select("orders.id, orders.email, orders.phone, orders.customer_name, orders.address, orders.fulfilled_at, orders.status, products.*, product_variances.*").
-		Joins("product").
-		Joins("product_variances").
-		Where("created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
+		Joins("inner join order_details on order_details.order_id = orders.id").
+		Joins("inner join product_variances on product_variances.product_id = order_details.product_variance_id").
+		Joins("inner join products on products.id = product_variances.product_id").
+		Where("orders.created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
+	if err != nil {
+		return orderDetail, errors.New("error query  order management")
+	}
+	return orderDetail, nil
+}
+
+func OrderManagements(st, et string) ([]Order, error) {
+	var orderDetail []Order
+	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
+	err := config.Database.Debug().Model(&Order{}).Preload("ProductVariances.Products").
+		Where("orders.created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
 	if err != nil {
 		return orderDetail, errors.New("error query  order management")
 	}

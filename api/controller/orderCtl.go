@@ -81,7 +81,7 @@ func OrderManagement(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	st := vars["starttime"]
 	et := vars["endtime"]
-	od, err := model.OrderManagement(st, et)
+	od, err := model.OrderManagements(st, et)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return

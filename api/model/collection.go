@@ -19,13 +19,3 @@ func OneCollectionCategories(id string) (Collection, error) {
 	err := config.Database.Debug().Preload("Categories").Where("ID=?", id).First(&clt).Error
 	return clt, err
 }
-
-func OneCollectionProduct(id string) ([]Collection, error) {
-	var collections []Collection
-	err := config.Database.Where("id = ?", id).
-		Preload("Categories.Products.ProductVariances").
-		Preload("Categories.Products.Images").
-		First(&collections).
-		Error
-	return collections, err
-}
