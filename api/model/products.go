@@ -49,17 +49,26 @@ func OneProduct(id string) (Product, error) {
 }
 
 // Return products based on categories.id
-func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]Product, error) {
+func ProductsBasedCategories(id string, limitNum int, offsNum int) ([]interface{}, error) {
 	var products []Product
+	productsCount := make([]interface{}, 0)
 	if err := config.Database.Debug().Preload("Images").
 		Preload("ProductVariances").
 		Joins("JOIN category_products on category_products.product_id=products.id").
 		Joins("JOIN categories on category_products.category_id=categories.id").
 		Where("category_products.category_id=?", id).Limit(limitNum).Offset(offsNum).
 		Find(&products).Error; err != nil {
-		log.Fatal(err)
+		return productsCount, err
 	}
-	return products, nil
+	row := config.Database.Table("products").
+		Joins("JOIN category_products on category_products.product_id=products.id").
+		Joins("JOIN categories on category_products.category_id=categories.id").
+		Where("category_products.category_id=?", id).
+		Select("count(products.id) as total").Row()
+	var total int
+	row.Scan(&total)
+	productsCount = append(productsCount, total, products)
+	return productsCount, nil
 }
 
 // Return products based on collections.id

@@ -49,16 +49,6 @@ func (OrderDetail) TableName() string {
 	return "order_details"
 }
 
-type OrderDetailManagement struct {
-	ID          uint      `json:"OrderID"`
-	Email       string    `json:"Email"`
-	Phone       string    `json:"Phone"`
-	Name        string    `json:"Name"`
-	Address     string    `json:"Address"`
-	FulfilledAt string    `json:"FulfilledAt"`
-	Status      bool      `json:"Status"`
-	Products    []Product `json:"Products"`
-}
 type Duration struct {
 	StartTime string `json:"StartTime"`
 	EndTime   string `json:"EndTime"`
@@ -123,18 +113,20 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 }
 
 // Return return order infors
-func OrderManagements(st, et string) ([]Order, []OrderDetail, error) {
+func OrderManagements(st, et string) ([]interface{}, error) {
+	a := make([]interface{}, 0)
 	var orders []Order
 	var orderDetails []OrderDetail
 	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
 	if err != nil {
-		return orders, orderDetails, err
+		return a, err
 	}
 	config.Database.Debug().Where("created_at between ? and ?", startTime, Endtime).
 		Order("orders.id asc").
 		Find(&orders)
 	config.Database.Order("order_details.order_id asc").Find(&orderDetails)
-	return orders, orderDetails, nil
+	a = append(a, orders, orderDetails)
+	return a, nil
 }
 
 func UpdateOrderStatus(id string) error {
