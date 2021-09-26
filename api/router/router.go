@@ -37,7 +37,7 @@ func HandleRequests() {
 	r.HandleFunc("/api/pages/{id:[0-9]+}/collections", controller.GetOnePage)
 
 	// Return a collection and its categories
-	// Return a collection and its product
+	// Return a collection and its products
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
 	r.HandleFunc("/api/collections/{id:[0-9]+}/products", controller.GetCollectionProduct)
 

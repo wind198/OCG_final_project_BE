@@ -3,7 +3,6 @@ module OCG_final_project_BE
 go 1.16
 
 require (
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
 	github.com/pdrum/swagger-automation v0.0.0-20190629163613-c8c7c80ba858
@@ -14,7 +13,6 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/stripe/stripe-go/v72 v72.65.0
 	github.com/wcharczuk/go-chart/v2 v2.1.0
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	gorm.io/driver/mysql v1.1.2
 	gorm.io/gorm v1.21.15
 )

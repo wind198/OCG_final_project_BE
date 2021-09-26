@@ -20,8 +20,9 @@ type Order struct {
 	Phone        string        `json:"Phone"`
 	CustomerName string        `json:"CustomerName"`
 	Address      string        `json:"Address"`
-	ReportSend   string        `json:"ReportSend"`
+	ReportSend   bool          `json:"ReportSend"`
 	FulfilledAt  time.Time     `json:"FulfilledAt"`
+	Status       bool          `json:"Status"`
 	OrderDetails []OrderDetail `gorm:"foreignKey:OrderID"`
 }
 
@@ -39,6 +40,16 @@ type OrderReport struct {
 	UnpaidOrders int     `json:"UnpaidOrders"`
 }
 
+type OrderDetailManagement struct {
+	ID          int       `json:"OrderID"`
+	Email       float64   `json:"Email"`
+	Phone       int       `json:"Phone"`
+	Name        int       `json:"Name"`
+	Address     string    `json:"Address"`
+	FulfilledAt time.Time `json:"FulfilledAt"`
+	Status      bool      `json:"Status"`
+	Products    []Product `json:"Products"`
+}
 type Duration struct {
 	StartTime string `json:"StartTime"`
 	EndTime   string `json:"EndTime"`
@@ -100,6 +111,15 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 	config.Database.Debug().Model(&Order{}).
 		Select(query).Where("created_at between ? and ? and report_send is null", startTime, Endtime).Find(&orp)
 	return orp, err
+}
+
+// Return return order infors
+func OrderManagement(st, et string) {
+	var orderDetail []OrderDetailManagement
+	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
+	config.Database.Table("orders").
+		Select("orders.id, orders.email, orders.phone, orders.customer_name, orders.address, orders.fulfilled_at, orders.status, products.*, product_variances.*").
+		Where("created_at between ? and ? ", startTime, Endtime).Find(&orderDetail)
 }
 
 // Order report for client
