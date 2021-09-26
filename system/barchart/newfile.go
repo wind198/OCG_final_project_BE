@@ -7,9 +7,9 @@ import (
 
 func Test_CreateChartProduct(t *testing.T) {
 	productReport := []model.ProductReport{
-		{ID: 1, Name: "a", Total: 1},
-		{ID: 2, Name: "b", Total: 2},
-		{ID: 3, Name: "c", Total: 3},
+		{ID: 1, Name: "a", AmountSold: 1},
+		{ID: 2, Name: "b", AmountSold: 2},
+		{ID: 3, Name: "c", AmountSold: 3},
 	}
 	product, err := CreateChartProduct(productReport)
 	if err != nil {

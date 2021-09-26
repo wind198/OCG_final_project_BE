@@ -33,15 +33,15 @@ type OrderDetail struct {
 }
 
 type OrderReport struct {
-	TotalOrders  int     `json:"total_orders"`
-	TotalSales   float64 `json:"total_sales"`
-	PaidOrders   int     `json:"paid_orders"`
-	UnpaidOrders int     `json:"unpaid_orders"`
+	TotalOrders  int     `json:"TotalOrders"`
+	TotalSales   float64 `json:"TotalSales"`
+	PaidOrders   int     `json:"PaidOrders"`
+	UnpaidOrders int     `json:"UnpaidOrders"`
 }
 
 type Duration struct {
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	StartTime string `json:"StartTime"`
+	EndTime   string `json:"EndTime"`
 }
 
 //  First  i validate, ensure everything from body is valid :D

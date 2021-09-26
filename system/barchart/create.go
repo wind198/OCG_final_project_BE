@@ -16,7 +16,7 @@ func CreateChartProduct(product []model.ProductReport) (string, error) {
 	for _, v := range product {
 		p := chart.Value{
 			Label: v.Name,
-			Value: v.Total,
+			Value: v.AmountSold,
 		}
 		charts = append(charts, p)
 	}
