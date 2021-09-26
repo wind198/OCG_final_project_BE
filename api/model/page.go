@@ -9,7 +9,7 @@ import (
 
 type Page struct {
 	gorm.Model
-	PageName    string       `json:"page_name"`
+	PageName    string       `json:"PageName"`
 	Collections []Collection `gorm:"foreignKey:PageID"`
 }
 

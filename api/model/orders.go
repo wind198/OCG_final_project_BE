@@ -15,21 +15,21 @@ import (
 
 type Order struct {
 	gorm.Model
-	TotalPrice   float64       `json:"total_price"`
-	Email        string        `json:"email"`
-	Phone        string        `json:"phone"`
-	CustomerName string        `json:"customer_name"`
-	Address      string        `json:"address"`
-	ReportSend   string        `json:"report_send"`
-	FulfilledAt  time.Time     `json:"fulfilled_at"`
+	TotalPrice   float64       `json:"TotalPrice"`
+	Email        string        `json:"Email"`
+	Phone        string        `json:"Phone"`
+	CustomerName string        `json:"CustomerName"`
+	Address      string        `json:"Address"`
+	ReportSend   string        `json:"ReportSend"`
+	FulfilledAt  time.Time     `json:"FulfilledAt"`
 	OrderDetails []OrderDetail `gorm:"foreignKey:OrderID"`
 }
 
 type OrderDetail struct {
 	gorm.Model
-	OrderID           uint `json:"order_id"`
-	ProductVarianceID uint `json:"product_variance_id"`
-	Quantity          int  `json:"quantity"`
+	OrderID           uint `json:"OrderID"`
+	ProductVarianceID uint `json:"ProductVarianceID"`
+	Quantity          int  `json:"Quantity"`
 }
 
 type OrderReport struct {

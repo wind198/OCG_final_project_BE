@@ -10,26 +10,26 @@ import (
 
 type Product struct {
 	gorm.Model
-	Name             string            `json:"name"`
-	Description      string            `json:"description"`
-	ProductVariances []ProductVariance `gorm:"foreignKey:ProductID", json:"product_variances"`
+	Name             string            `json:"Name"`
+	Description      string            `json:"Description"`
+	ProductVariances []ProductVariance `gorm:"foreignKey:ProductID"`
 	Images           []Image           `gorm:"foreignKey:ProductID"`
 	Categories       []Category        `gorm:"many2many:category_products;"`
 }
 type ProductVariance struct {
 	gorm.Model
-	ProductID   uint    `json:"product_id"`
-	Color       string  `json:"color"`
-	Size        string  `json:"size"`
-	Price       float64 `json:"price"`
-	Inventory   int     `json:"inventory"`
+	ProductID   uint    `json:"ProductID"`
+	Color       string  `json:"Color"`
+	Size        string  `json:"Size"`
+	Price       float64 `json:"Price"`
+	Inventory   int     `json:"Inventory"`
 	OrderDetail OrderDetail
 }
 
 type ProductReport struct {
-	ID    uint    `json:"product_id"`
-	Name  string  `json:"product_name"`
-	Total float64 `json:"amount_sold"`
+	ID         uint    `json:"ID"`
+	Name       string  `json:"Name"`
+	AmountSold float64 `json:"AmountSold"`
 }
 
 func AllProducts() ([]Product, error) {
@@ -90,9 +90,9 @@ func BestSellProducts(st, et string) ([]ProductReport, error) {
 			panic(err)
 		}
 		products = append(products, ProductReport{
-			ID:    id,
-			Total: total,
-			Name:  name,
+			ID:         id,
+			AmountSold: total,
+			Name:       name,
 		})
 	}
 	err = rows.Err()
