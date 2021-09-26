@@ -62,7 +62,7 @@ func (sched *Scheduler) scheduleJob() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("Scheduling %v email(s) at %v\n", len(resp), time.Now().Format("2006-Jan-02 15:04:05"))
+	fmt.Printf("Got %v new order(s) at %v\n", resp[0].TotalOrder, time.Now().Format("2006-Jan-02 15:04:05"))
 	for _, em := range resp {
 		body := em.String()
 		err = sched.rmqChan.Publish(body)
@@ -91,7 +91,6 @@ func (sched *Scheduler) getEmailForSending() ([]*sendgrid.EmailContent, error) {
 	return resp, err
 }
 
-// scanFromDB get all orders that match the predefined condition (created_at < now - 1 min && thankyou_email_sent == falses)
 func (sched *Scheduler) prepareContent() ([]*sendgrid.EmailContent, error) {
 	var resp []*sendgrid.EmailContent
 	startTime := time.Now().Add(-time.Hour * 300).Format("2006-01-02 15:04:05")
@@ -118,6 +117,7 @@ func (sched *Scheduler) prepareContent() ([]*sendgrid.EmailContent, error) {
 	fs := []string{}
 	fs = append(fs, pdtChart, ordChart)
 	resp = append(resp, &sendgrid.EmailContent{
+		TotalOrder:       orderReport.TotalOrders,
 		StartTime:        startTime,
 		EndTime:          endTime,
 		Subject:          DefaultReportSubject,

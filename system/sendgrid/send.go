@@ -33,6 +33,7 @@ func (eu *EmailUser) String() string {
 // EmailContent defines email content info
 type EmailContent struct {
 	ID               int64      `json:"id"`
+	TotalOrder       int        `json:"total_order"`
 	StartTime        string     `json:"start_time"`
 	EndTime          string     `json:"enf_time"`
 	Subject          string     `json:"subject"`

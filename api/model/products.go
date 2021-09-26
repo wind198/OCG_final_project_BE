@@ -12,7 +12,7 @@ type Product struct {
 	gorm.Model
 	Name             string            `json:"name"`
 	Description      string            `json:"description"`
-	ProductVariances []ProductVariance `gorm:"foreignKey:ProductID"`
+	ProductVariances []ProductVariance `gorm:"foreignKey:ProductID", json:"product_variances"`
 	Images           []Image           `gorm:"foreignKey:ProductID"`
 	Categories       []Category        `gorm:"many2many:category_products;"`
 }
@@ -29,7 +29,7 @@ type ProductVariance struct {
 type ProductReport struct {
 	ID    uint    `json:"product_id"`
 	Name  string  `json:"product_name"`
-	Total float64 `json:"amount sold"`
+	Total float64 `json:"amount_sold"`
 }
 
 func AllProducts() ([]Product, error) {

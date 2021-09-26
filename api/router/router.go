@@ -34,6 +34,7 @@ func HandleRequests() {
 
 	// Return a collection and its categories
 	r.HandleFunc("/api/collections/{id:[0-9]+}/categories", controller.GetOneCollection)
+	r.HandleFunc("/api/collections/{id:[0-9]+}/products", controller.GetCollectionProduct)
 
 	// Post a order with body
 	// Return orde analysis such as total sales, paid order, unpaid order with prams
@@ -43,5 +44,5 @@ func HandleRequests() {
 	r.HandleFunc("/api/orders/{id:[0-9]+}/fulfill", controller.UpdateOrderPay)
 	r.HandleFunc("/api/orders/{starttime}/{endtime}/analysis", controller.OrderReport)
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":9922", r))
+	log.Fatal(http.ListenAndServe(":9933", r))
 }

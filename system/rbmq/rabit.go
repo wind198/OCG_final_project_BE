@@ -30,7 +30,7 @@ func NewChannelMQ(name string) *Rabbit {
 	FailOnError(err, "Failed to open a channel")
 
 	q, err := ch.QueueDeclare(
-		name,  // name
+		name,  // name que
 		false, // durable
 		false, // delete when unused
 		false, // exclusive

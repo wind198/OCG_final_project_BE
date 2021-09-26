@@ -62,7 +62,7 @@ func (w *Worker) Start() {
 				continue
 			}
 			//  declare prepare statement via Gorm pkg  sendto to handle func
-			// and then send it to handle func
+			//  and then send it to handle func
 			tx := config.Database.Session(&gorm.Session{PrepareStmt: true})
 
 			err = model.UpdateOrderAfterSend(tx, mailCt.StartTime, mailCt.EndTime)
