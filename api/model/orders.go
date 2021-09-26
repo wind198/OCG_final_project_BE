@@ -41,12 +41,12 @@ type OrderReport struct {
 }
 
 type OrderDetailManagement struct {
-	ID          int       `json:"OrderID"`
-	Email       float64   `json:"Email"`
-	Phone       int       `json:"Phone"`
-	Name        int       `json:"Name"`
+	ID          uint      `json:"OrderID"`
+	Email       string    `json:"Email"`
+	Phone       string    `json:"Phone"`
+	Name        string    `json:"Name"`
 	Address     string    `json:"Address"`
-	FulfilledAt time.Time `json:"FulfilledAt"`
+	FulfilledAt string    `json:"FulfilledAt"`
 	Status      bool      `json:"Status"`
 	Products    []Product `json:"Products"`
 }
@@ -114,12 +114,18 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 }
 
 // Return return order infors
-func OrderManagement(st, et string) {
+func OrderManagement(st, et string) ([]OrderDetailManagement, error) {
 	var orderDetail []OrderDetailManagement
 	startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
-	config.Database.Table("orders").
+	err := config.Database.Model(&Order{}).
 		Select("orders.id, orders.email, orders.phone, orders.customer_name, orders.address, orders.fulfilled_at, orders.status, products.*, product_variances.*").
-		Where("created_at between ? and ? ", startTime, Endtime).Find(&orderDetail)
+		Joins("product").
+		Joins("product_variances").
+		Where("created_at between ? and ? ", startTime, Endtime).Find(&orderDetail).Error
+	if err != nil {
+		return orderDetail, errors.New("error query  order management")
+	}
+	return orderDetail, nil
 }
 
 // Order report for client

@@ -45,9 +45,10 @@ func HandleRequests() {
 	// Return orde analysis such as total sales, paid order, unpaid order with prams
 	// start time and end time query
 	r.HandleFunc("/api/orders", controller.CreateOrder).Methods("POST")
-	r.HandleFunc("/api/payment", controller.HandlePayment).Methods("POST")
+	r.HandleFunc("/api/orders/payment", controller.HandlePayment).Methods("POST")
 	r.HandleFunc("/api/orders/{id:[0-9]+}/fulfill", controller.UpdateOrderPay)
 	r.HandleFunc("/api/orders/{starttime}/{endtime}/analysis", controller.OrderReport)
+	r.HandleFunc("/api/orders/{starttime}/{endtime}/managements", controller.OrderManagement)
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":9922", r))
 }
