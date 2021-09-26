@@ -103,3 +103,21 @@ func OrderManagement(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n %s\n", uj, ujt)
 	w.WriteHeader(http.StatusOK) // 200
 }
+
+func UpdateOrderStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := model.UpdateOrderStatus(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json") //set header type
+	fmt.Fprintf(w, "Status: true")
+	w.WriteHeader(http.StatusOK) // 200
+}

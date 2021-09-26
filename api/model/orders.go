@@ -130,11 +130,22 @@ func OrderManagements(st, et string) ([]Order, []OrderDetail, error) {
 	if err != nil {
 		return orders, orderDetails, err
 	}
-	config.Database.Where("created_at between ? and ?", startTime, Endtime).
+	config.Database.Debug().Where("created_at between ? and ?", startTime, Endtime).
 		Order("orders.id asc").
 		Find(&orders)
 	config.Database.Order("order_details.order_id asc").Find(&orderDetails)
 	return orders, orderDetails, nil
+}
+
+func UpdateOrderStatus(id string) error {
+	var order Order
+	if config.Database.Debug().Model(&order).
+		Where("orders.id = ? and orders.fulfilled_at is not null ", id).
+		Update("status", true).RowsAffected == 0 {
+		return errors.New("can not update id: " + id)
+	}
+	return nil
+
 }
 
 // Order report for client
