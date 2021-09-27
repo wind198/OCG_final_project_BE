@@ -33,6 +33,10 @@ type OrderDetail struct {
 	Quantity          int  `json:"Quantity"`
 }
 
+type OrderManagement struct {
+	Orders      []Order
+	OrderDetail []OrderDetail
+}
 type OrderReport struct {
 	TotalOrders  int     `json:"TotalOrders"`
 	TotalSales   float64 `json:"TotalSales"`
@@ -113,20 +117,22 @@ func OrderAnalysis(st, et string) (OrderReport, error) {
 }
 
 // Return return order infors
-func OrderManagements(st, et string) ([]interface{}, error) {
-	a := make([]interface{}, 0)
+func OrderManagements(st, et string) (OrderManagement, error) {
 	var orders []Order
 	var orderDetails []OrderDetail
+	var orderManagement OrderManagement
 	startTime, Endtime, err := ValidateAnalysisQuery(st, et)
 	if err != nil {
-		return a, err
+		return orderManagement, err
 	}
 	config.Database.Debug().Where("created_at between ? and ?", startTime, Endtime).
 		Order("orders.id asc").
 		Find(&orders)
 	config.Database.Order("order_details.order_id asc").Find(&orderDetails)
-	a = append(a, orders, orderDetails)
-	return a, nil
+	orderManagement = OrderManagement{
+		Orders:      orders,
+		OrderDetail: orderDetails}
+	return orderManagement, nil
 }
 
 func UpdateOrderStatus(id string) error {

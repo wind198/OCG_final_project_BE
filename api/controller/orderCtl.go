@@ -93,12 +93,6 @@ func OrderManagement(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	// ujt, err := json.Marshal(odt)
-	// if err != nil {
-	// 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	// 	fmt.Println(err)
-	// }
-
 	w.Header().Set("Content-Type", "application/json") //set header type
 	fmt.Fprintf(w, "%s\n", uj)
 	w.WriteHeader(http.StatusOK) // 200
