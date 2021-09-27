@@ -23,12 +23,12 @@ type Order struct {
 	ReportSend   bool          `json:"ReportSend"`
 	FulfilledAt  time.Time     `json:"FulfilledAt"`
 	Status       bool          `json:"Status"`
-	OrderDetails []OrderDetail `gorm:"foreignKey:ID;AssociationForeignKey:OrderID"`
+	OrderDetails []OrderDetail `gorm:"foreignKey:OrderID"`
 }
 
 type OrderDetail struct {
 	gorm.Model
-	OrderID           uint `gorm:"column:order_id" json:"OrderID"`
+	OrderID           uint `json:"OrderID"`
 	ProductVarianceID uint `json:"ProductVarianceID"`
 	Quantity          int  `json:"Quantity"`
 }
@@ -42,15 +42,6 @@ type OrderReport struct {
 	TotalSales   float64 `json:"TotalSales"`
 	PaidOrders   int     `json:"PaidOrders"`
 	UnpaidOrders int     `json:"UnpaidOrders"`
-}
-
-type Tabler interface {
-	TableName() string
-}
-
-// TableName overrides the table name used by OrderDetails to `order_details`
-func (OrderDetail) TableName() string {
-	return "order_details"
 }
 
 type Duration struct {
@@ -80,6 +71,7 @@ func Create(r *http.Request) (Order, error) {
 	//calculate total price from db
 
 	config.Database.Omit("ID", "FulfilledAt", "ReportSend").Create(&order)
+
 	return order, err
 }
 
@@ -133,6 +125,13 @@ func OrderManagements(st, et string) (OrderManagement, error) {
 		Orders:      orders,
 		OrderDetail: orderDetails}
 	return orderManagement, nil
+}
+
+func OrderManagementA(st, et string) ([]Order, error) {
+	var orders []Order
+	// startTime, Endtime, _ := ValidateAnalysisQuery(st, et)
+	err := config.Database.Debug().Preload("OrderDetails").Find(&orders).Error
+	return orders, err
 }
 
 func UpdateOrderStatus(id string) error {
