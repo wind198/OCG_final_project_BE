@@ -53,5 +53,5 @@ func HandleRequests() {
 	r.HandleFunc("/api/orders/{starttime}/{endtime}/managements", controller.OrderManagement)
 	r.HandleFunc("/api/orders/{id:[0-9]+}/status", controller.UpdateOrderStatus)
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":9944", r))
+	log.Fatal(http.ListenAndServe(":9933", r))
 }
